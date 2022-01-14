@@ -1,0 +1,23 @@
+{
+  "__type__": "cc.Material",
+  "_name": "rain",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "e5e510cc-228b-4f51-9e63-6f834844d08a"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "noiseTexture": {
+          "__uuid__": "6087a008-5f89-496b-8a37-3f7d20aec542"
+        },
+        "texture": {
+          "__uuid__": "aa42b1cc-8945-4951-b9c5-28b38cccf054"
+        }
+      },
+      "defines": {}
+    }
+  }
+}

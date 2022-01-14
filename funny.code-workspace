@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../../../../../Applications/CocosCreator/Creator/2.3.0/CocosCreator.app/Contents/Resources/engine/cocos2d"
+		}
+	],
+    "settings": {}
+}
