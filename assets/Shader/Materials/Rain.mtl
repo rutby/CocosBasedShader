@@ -1,20 +1,20 @@
 {
   "__type__": "cc.Material",
-  "_name": "rain",
+  "_name": "Rain",
   "_objFlags": 0,
   "_native": "",
   "_effectAsset": {
-    "__uuid__": "e5e510cc-228b-4f51-9e63-6f834844d08a"
+    "__uuid__": "c738eb1d-9ce5-4f2f-9b37-b39d81f40bc8"
   },
   "_techniqueIndex": 0,
   "_techniqueData": {
     "0": {
       "props": {
-        "noiseTexture": {
-          "__uuid__": "6087a008-5f89-496b-8a37-3f7d20aec542"
-        },
         "texture": {
-          "__uuid__": "aa42b1cc-8945-4951-b9c5-28b38cccf054"
+          "__uuid__": "9025639a-f3fd-4f67-9776-49d5692214e1"
+        },
+        "noiseTexture": {
+          "__uuid__": "1d2f6718-20f0-4cc8-a9d8-c690ce1af6dc"
         }
       },
       "defines": {}

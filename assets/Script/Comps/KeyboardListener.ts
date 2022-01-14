@@ -1,3 +1,5 @@
+import { DataGame } from "../System/Game/DataGame";
+
 const {ccclass, property, menu, executeInEditMode} = cc._decorator;
 
 @ccclass
@@ -16,12 +18,16 @@ export default class KeyboardListener extends cc.Component {
     onEventKeyDown(event) {
         switch(event.keyCode) {
             case 'A'.charCodeAt(0): // -雨密度
+                DataGame.rainForce *= 0.9;
                 break;
             case 'D'.charCodeAt(0): // +雨密度
+                DataGame.rainForce *= 1.1;
                 break;
             case 'W'.charCodeAt(0): // +雨速度
+                DataGame.rainSpeed *= 1.1;
                 break;
             case 'S'.charCodeAt(0): // -雨速度
+                DataGame.rainSpeed *= 0.9;
                 break;
             default:
                 break;
