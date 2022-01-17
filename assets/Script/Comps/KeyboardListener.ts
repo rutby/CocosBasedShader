@@ -18,16 +18,16 @@ export default class KeyboardListener extends cc.Component {
     onEventKeyDown(event) {
         switch(event.keyCode) {
             case 'A'.charCodeAt(0): // -雨密度
-                DataGame.rainForce *= 0.9;
+                DataGame.rainForce *= 0.98;
                 break;
             case 'D'.charCodeAt(0): // +雨密度
-                DataGame.rainForce *= 1.1;
+                DataGame.rainForce *= 1.02;
                 break;
             case 'W'.charCodeAt(0): // +雨速度
-                DataGame.rainSpeed *= 1.1;
+                DataGame.rainSpeed *= 1.02;
                 break;
             case 'S'.charCodeAt(0): // -雨速度
-                DataGame.rainSpeed *= 0.9;
+                DataGame.rainSpeed *= 0.98;
                 break;
             default:
                 break;

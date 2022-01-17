@@ -1,20 +1,20 @@
 {
   "ver": "2.3.4",
-  "uuid": "fcbb8cd0-bd08-4d82-b0fc-0d483914c3c7",
+  "uuid": "a4640a54-5b90-401b-ba7f-4c1915407897",
   "type": "sprite",
   "wrapMode": "repeat",
   "filterMode": "bilinear",
   "premultiplyAlpha": false,
   "genMipmaps": false,
-  "packable": true,
+  "packable": false,
   "width": 1024,
   "height": 1024,
   "platformSettings": {},
   "subMetas": {
-    "noiseTexture (1)": {
+    "noiseTexture_4_1": {
       "ver": "1.0.4",
-      "uuid": "2e58a7e7-dd57-407d-a540-1e17183936fb",
-      "rawTextureUuid": "fcbb8cd0-bd08-4d82-b0fc-0d483914c3c7",
+      "uuid": "5bb0c6e8-f474-496b-8fa9-14d75cb9c933",
+      "rawTextureUuid": "a4640a54-5b90-401b-ba7f-4c1915407897",
       "trimType": "auto",
       "trimThreshold": 1,
       "rotated": false,

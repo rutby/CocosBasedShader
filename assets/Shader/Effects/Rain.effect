@@ -73,11 +73,21 @@ CCProgram fs %{
     vec4 o = texture(texture, v_uv0);
     
     // rain
-    vec2 rain_uv = vec2(v_uv0.x, v_uv0.y * 0.03 - cc_time.x * speed);
+    vec2 rain_uv = vec2(v_uv0.x, v_uv0.y * 0.02 - cc_time.x * speed);
+    // vec2 rain_uv = vec2(v_uv0.x, v_uv0.y * 0.03);
+    // vec2 rain_uv = vec2(v_uv0.x, v_uv0.y);
+    rain_uv.x += v_uv0.y * 0.3;
+    
     vec4 col_rain = texture(noiseTexture, rain_uv);
-    float f = (col_rain.r - force * col_rain.g - force * col_rain.b) * 2.;
-    f = clamp(f, 0., 1.);
-    o.rgb += f;
+    // float f = (col_rain.r - force * col_rain.g - force * col_rain.b);
+    float f = (col_rain.r - force *  col_rain.g - force *  col_rain.b);
+    
+    f = smoothstep(0., 0.05, f);
+    // f = step(0.01, f);
+    // f = step(f, 0.01);
+    // f = clamp(f, 0., 1.);
+    // o.rgb += f;
+    o.rgb += vec3(f);
     
     // ripple
     vec4 ripple = texture(rippleTexture, v_uv0);
