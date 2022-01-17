@@ -13,6 +13,7 @@ CCEffect %{
       properties:
         texture: { value: white }
         noiseTexture: { value: white }
+        rippleTexture: { value: white }
         speed: {value: 0.02}
         force: {value: 2.}
 }%
@@ -47,25 +48,44 @@ CCProgram fs %{
   
   #include <alpha-test>
   #include <cc-global>
+  
+  #define PI 3.141592653
 
   in vec4 v_color;
   in vec2 v_uv0;
   uniform sampler2D texture;
   uniform sampler2D noiseTexture;
+  uniform sampler2D rippleTexture;
   
   uniform Rain {
     float speed;
     float force;
   };
+  
+  float ripple(float emisive, vec2 pos, float radius) {
+    float d = length(v_uv0.xy - pos);
+    float s1 = step(d, radius * emisive);
+    float s2 = step(radius * 0.9  * emisive, d);
+    return step(2., s1 + s2);
+  }
 
   void main () {
     vec4 o = texture(texture, v_uv0);
     
+    // rain
     vec2 rain_uv = vec2(v_uv0.x, v_uv0.y * 0.03 - cc_time.x * speed);
     vec4 col_rain = texture(noiseTexture, rain_uv);
-    float f = (col_rain.r - force * col_rain.g - force * col_rain.b);
-    f = clamp(f, 0., 1.) * 0.5;
+    float f = (col_rain.r - force * col_rain.g - force * col_rain.b) * 2.;
+    f = clamp(f, 0., 1.);
     o.rgb += f;
+    
+    // ripple
+    vec4 ripple = texture(rippleTexture, v_uv0);
+    float opacity = fract(ripple.a + cc_time.x);
+    float range = opacity - 1.0 + ripple.x;
+    float fadeout = 1. - opacity;
+    float final = fadeout * sin(clamp(range * 80.0, 0.0, 2.) * PI) * 2.0;
+    o.rgb += vec3(clamp(final, 0., 1.));
 
     gl_FragColor = o;
   }

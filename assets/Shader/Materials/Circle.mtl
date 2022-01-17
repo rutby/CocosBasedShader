@@ -1,26 +1,26 @@
 {
   "__type__": "cc.Material",
-  "_name": "Rain",
+  "_name": "Circle",
   "_objFlags": 0,
   "_native": "",
   "_effectAsset": {
-    "__uuid__": "c738eb1d-9ce5-4f2f-9b37-b39d81f40bc8"
+    "__uuid__": "8d78bca1-e24a-46d2-8361-d6a45403f994"
   },
   "_techniqueIndex": 0,
   "_techniqueData": {
     "0": {
+      "defines": {},
       "props": {
-        "texture": {
-          "__uuid__": "9025639a-f3fd-4f67-9776-49d5692214e1"
-        },
         "noiseTexture": {
           "__uuid__": "fcbb8cd0-bd08-4d82-b0fc-0d483914c3c7"
+        },
+        "texture": {
+          "__uuid__": "9025639a-f3fd-4f67-9776-49d5692214e1"
         },
         "rippleTexture": {
           "__uuid__": "11a2e99e-0967-41d3-b85f-9402aa9306e4"
         }
-      },
-      "defines": {}
+      }
     }
   }
 }
