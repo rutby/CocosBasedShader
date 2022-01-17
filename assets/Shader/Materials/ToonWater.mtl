@@ -11,14 +11,17 @@
     "0": {
       "defines": {},
       "props": {
-        "noiseTexture": {
-          "__uuid__": "fcbb8cd0-bd08-4d82-b0fc-0d483914c3c7"
-        },
         "texture": {
           "__uuid__": "9025639a-f3fd-4f67-9776-49d5692214e1"
         },
         "rippleTexture": {
           "__uuid__": "11a2e99e-0967-41d3-b85f-9402aa9306e4"
+        },
+        "noiseTexture": {
+          "__uuid__": "d0dcbe0a-fe0b-4ada-8a46-fa85a9958891"
+        },
+        "distortionTexture": {
+          "__uuid__": "0c25dc74-f59b-41a4-8a23-fdea9b2540ea"
         }
       }
     }

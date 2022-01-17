@@ -58,7 +58,7 @@
     "_groupIndex": 0,
     "groupIndex": 0,
     "autoReleaseAssets": false,
-    "_id": "03e5324d-d09b-461f-a839-4a480bdd1e2c"
+    "_id": "332041e8-d465-42d6-ad83-c53253595b27"
   },
   {
     "__type__": "cc.Node",
@@ -78,13 +78,10 @@
     "_active": true,
     "_components": [
       {
+        "__id__": 7
+      },
+      {
         "__id__": 8
-      },
-      {
-        "__id__": 9
-      },
-      {
-        "__id__": 10
       }
     ],
     "_prefab": null,
@@ -174,7 +171,7 @@
       "array": [
         0,
         0,
-        425.2184732581594,
+        252.8794179050561,
         0,
         0,
         0,
@@ -235,7 +232,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Rain",
+    "_name": "bg_longmao",
     "_objFlags": 0,
     "_parent": {
       "__id__": 2
@@ -245,9 +242,6 @@
     "_components": [
       {
         "__id__": 6
-      },
-      {
-        "__id__": 7
       }
     ],
     "_prefab": null,
@@ -296,7 +290,7 @@
     "_is3DNode": false,
     "_groupIndex": 0,
     "groupIndex": 0,
-    "_id": "f2m53UXNxF8Jrvl5KMTuBM"
+    "_id": "7baIRYLdJNprW3ghnzVYPE"
   },
   {
     "__type__": "cc.Sprite",
@@ -308,7 +302,7 @@
     "_enabled": true,
     "_materials": [
       {
-        "__uuid__": "cb184164-a475-430c-afba-8f9fcdc68cf9"
+        "__uuid__": "d6bae57c-4e4f-4edf-8a35-7a464ac58fae"
       }
     ],
     "_srcBlendFactor": 770,
@@ -328,17 +322,7 @@
     "_fillRange": 0,
     "_isTrimmedMode": true,
     "_atlas": null,
-    "_id": "04cJiynSlPKYV6igeZ26BH"
-  },
-  {
-    "__type__": "13f2435CrNL5pzRd85rGloG",
-    "_name": "",
-    "_objFlags": 0,
-    "node": {
-      "__id__": 5
-    },
-    "_enabled": true,
-    "_id": "4bKSlZQtpM5b0FD41cvNRN"
+    "_id": "c0hXRUOg1F6aONJltTWole"
   },
   {
     "__type__": "cc.Canvas",
@@ -383,15 +367,5 @@
     "_originalWidth": 0,
     "_originalHeight": 0,
     "_id": "29zXboiXFBKoIV4PQ2liTe"
-  },
-  {
-    "__type__": "39a1f+NutNL5qi1Uodd8Cj0",
-    "_name": "",
-    "_objFlags": 0,
-    "node": {
-      "__id__": 2
-    },
-    "_enabled": true,
-    "_id": "20GtxRoAVKCrr+QhMC5NDX"
   }
 ]
