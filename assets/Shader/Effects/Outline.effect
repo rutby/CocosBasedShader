@@ -1,0 +1,95 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: vs
+      frag: fs
+      blendState:
+        targets:
+        - blend: true
+      rasterizerState:
+        cullMode: none
+      properties:
+        texture: { value: white }
+        alphaThreshold: { value: 0.5 }
+        outlineWidth: { value: 3.0 }
+        textureSize: { value: [303, 380] }
+        outlineColor: { value: [0.086, 0.407, 1, 1.] }
+}%
+
+
+CCProgram vs %{
+  precision highp float;
+
+  #include <cc-global>
+  #include <cc-local>
+
+  in vec3 a_position;
+  in vec4 a_color;
+  out vec4 v_color;
+
+  in vec2 a_uv0;
+  out vec2 v_uv0;
+
+  void main () {
+    vec4 pos = vec4(a_position, 1);
+    pos = cc_matViewProj * pos;
+
+    v_uv0 = a_uv0;
+    v_color = a_color;
+    gl_Position = pos;
+  }
+}%
+
+
+CCProgram fs %{
+  precision highp float;
+  
+  #include <alpha-test>
+  #include <cc-global>
+  #include <cc-local>
+
+  in vec4 v_color;
+  in vec2 v_uv0;
+  uniform sampler2D texture;
+  
+  uniform CUSTOM {
+      vec4 outlineColor;
+      vec2 textureSize;
+      float outlineWidth;
+  };
+  
+    float kernel(float width) {
+        // kernel
+        float halfScaleFloor = floor(width * 0.5);
+        float halfScaleCeil = ceil(width * 0.5);
+
+        vec2 bottomLeftUV = v_uv0 - vec2(halfScaleFloor / textureSize.x, halfScaleFloor / textureSize.y);
+        vec2 topRightUV = v_uv0 + vec2(halfScaleCeil / textureSize.x, halfScaleCeil / textureSize.y);
+        vec2 bottomRightUV = v_uv0 + vec2(halfScaleCeil / textureSize.x, -halfScaleFloor / textureSize.y);
+        vec2 topLeftUV = v_uv0 + vec2(-halfScaleFloor / textureSize.x, halfScaleCeil / textureSize.y);
+        
+        // sample
+        float p1 = texture(texture, bottomLeftUV).a;
+        float p2 = texture(texture, topRightUV).a;
+        float p3 = texture(texture, bottomRightUV).a;
+        float p4 = texture(texture, topLeftUV).a;
+        
+        float diff0 = p2 - p1;
+        float diff1 = p4 - p3;
+        return sqrt(pow(diff0, 2.) + pow(diff1, 2.));
+    }
+    
+    vec4 lerp(vec4 a, vec4 b, float t) {
+        return a.rgba + (b.rgba-a.rgba) * t;
+    }
+
+  void main () {
+    vec4 o = texture(texture, v_uv0);
+    float s2 = kernel(outlineWidth);
+    o = lerp(o, outlineColor, step(0.8, s2));
+
+    gl_FragColor = o;
+  }
+}%
