@@ -60,13 +60,9 @@ CCProgram fs %{
     };
 
   void main () {
-    vec4 o = texture(texture, v_uv0);
-    
-    vec4 noise = texture(noiseTexture, v_uv0 / 3.);
-    float diff = abs(clamp(sin(cc_time.x * 1.0), 0., 1.) - noise.r);
-    
-    o.rgb += step(diff, 0.01) * borderColor.rgb;
-    o.a = step(clamp(sin(cc_time.x * 1.0), 0., 1.), noise.r);
+    vec4 noise = texture(noiseTexture, vec2(v_uv0.x + cc_time.x * 0.1, v_uv0.y));
+    vec2 offset = (vec2(noise.r, noise.g) - 0.5) * 2.0;
+    vec4 o = texture(texture, v_uv0 + offset * 0.2);
     
     gl_FragColor = o;
   }

@@ -1,0 +1,22 @@
+{
+  "__type__": "cc.Material",
+  "_name": "Distortion",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "58fc7eca-9390-405b-9c66-cea66212f2e7"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "defines": {
+        "USE_TEXTURE": true
+      },
+      "props": {
+        "noiseTexture": {
+          "__uuid__": "0c25dc74-f59b-41a4-8a23-fdea9b2540ea"
+        }
+      }
+    }
+  }
+}
