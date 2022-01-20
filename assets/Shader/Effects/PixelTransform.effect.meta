@@ -1,0 +1,17 @@
+{
+  "ver": "1.0.25",
+  "uuid": "cc594bb6-5f01-40e6-9b73-a2caa13984ee",
+  "compiledShaders": [
+    {
+      "glsl1": {
+        "vert": "\nprecision highp float;\nuniform mediump mat4 cc_matViewProj;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying vec4 v_color;\nattribute vec2 a_uv0;\nvarying vec2 v_uv0;\nvoid main () {\n  vec4 pos = vec4(a_position, 1);\n  pos = cc_matViewProj * pos;\n  v_uv0 = a_uv0;\n  v_color = a_color;\n  gl_Position = pos;\n}",
+        "frag": "\nprecision highp float;\n#if USE_ALPHA_TEST\n#endif\nuniform highp vec4 cc_time;\nvarying vec4 v_color;\nvarying vec2 v_uv0;\nuniform sampler2D texture;\nuniform sampler2D noiseTexture;\nvoid main () {\n  vec4 o = texture2D(texture, v_uv0);\n  float segment = 25.;\n  float blend = fract(cc_time.x * 0.5) * 2.;\n  float nx = floor(v_uv0.x * segment) / segment;\n  float ny = floor(v_uv0.y * segment) / segment;\n  float seq = smoothstep(blend - 0.5, blend, nx);\n  vec4 col = texture2D(noiseTexture, vec2(nx, ny));\n  o.a *= step(0.01, seq - col.r);\n  gl_FragColor = o;\n}"
+      },
+      "glsl3": {
+        "vert": "\nprecision highp float;\nuniform CCGlobal {\n  highp   vec4 cc_time;\n  mediump vec4 cc_screenSize;\n  mediump vec4 cc_screenScale;\n  mediump vec4 cc_nativeSize;\n  highp   mat4 cc_matView;\n  mediump mat4 cc_matViewInv;\n  mediump mat4 cc_matProj;\n  mediump mat4 cc_matProjInv;\n  mediump mat4 cc_matViewProj;\n  mediump mat4 cc_matViewProjInv;\n  mediump vec4 cc_cameraPos;\n};\nuniform CCLocal {\n  mat4 cc_matWorld;\n  mat4 cc_matWorldIT;\n};\nin vec3 a_position;\nin vec4 a_color;\nout vec4 v_color;\nin vec2 a_uv0;\nout vec2 v_uv0;\nvoid main () {\n  vec4 pos = vec4(a_position, 1);\n  pos = cc_matViewProj * pos;\n  v_uv0 = a_uv0;\n  v_color = a_color;\n  gl_Position = pos;\n}",
+        "frag": "\nprecision highp float;\n#if USE_ALPHA_TEST\n  uniform ALPHA_TEST {\n    float alphaThreshold;\n  };\n#endif\nuniform CCGlobal {\n  highp   vec4 cc_time;\n  mediump vec4 cc_screenSize;\n  mediump vec4 cc_screenScale;\n  mediump vec4 cc_nativeSize;\n  highp   mat4 cc_matView;\n  mediump mat4 cc_matViewInv;\n  mediump mat4 cc_matProj;\n  mediump mat4 cc_matProjInv;\n  mediump mat4 cc_matViewProj;\n  mediump mat4 cc_matViewProjInv;\n  mediump vec4 cc_cameraPos;\n};\nuniform CCLocal {\n  mat4 cc_matWorld;\n  mat4 cc_matWorldIT;\n};\nin vec4 v_color;\nin vec2 v_uv0;\nuniform sampler2D texture;\nuniform sampler2D noiseTexture;\nuniform CUSTOM {\n    vec4 outlineColor;\n    vec2 textureSize;\n    float outlineWidth;\n};\nvoid main () {\n  vec4 o = texture(texture, v_uv0);\n  float segment = 25.;\n  float blend = fract(cc_time.x * 0.5) * 2.;\n  float nx = floor(v_uv0.x * segment) / segment;\n  float ny = floor(v_uv0.y * segment) / segment;\n  float seq = smoothstep(blend - 0.5, blend, nx);\n  vec4 col = texture(noiseTexture, vec2(nx, ny));\n  o.a *= step(0.01, seq - col.r);\n  gl_FragColor = o;\n}"
+      }
+    }
+  ],
+  "subMetas": {}
+}

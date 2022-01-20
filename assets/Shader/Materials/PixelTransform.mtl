@@ -1,0 +1,20 @@
+{
+  "__type__": "cc.Material",
+  "_name": "PixelTransform",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "cc594bb6-5f01-40e6-9b73-a2caa13984ee"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "noiseTexture": {
+          "__uuid__": "d0dcbe0a-fe0b-4ada-8a46-fa85a9958891"
+        }
+      },
+      "defines": {}
+    }
+  }
+}
