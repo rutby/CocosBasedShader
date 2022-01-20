@@ -99,9 +99,11 @@ CCProgram fs %{
 
   void main () {
     vec4 o = texture(texture, v_uv0);
-    float s2 = kernel(outlineWidth);
+    float s3 = kernel(3.0);
+    float s2 = kernel(2.0);
     
-    o = lerp(o, outlineColor, smoothstep(0.1 - 0.1, 0.1 + 0.1, s2));
+    float threhold = step(0.1, s3) * step(s2, 0.1);
+    o = lerp(o, outlineColor, threhold);
 
     gl_FragColor = o;
   }
