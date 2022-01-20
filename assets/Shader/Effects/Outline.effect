@@ -63,28 +63,35 @@ CCProgram fs %{
   };
   
     float kernel(float width) {
-        // kernel
-        float halfScaleFloor = floor(width * 0.5);
-        float halfScaleCeil = ceil(width * 0.5);
-
-        vec2 bottomLeftUV = v_uv0 - vec2(halfScaleFloor / textureSize.x, halfScaleFloor / textureSize.y);
-        vec2 topRightUV = v_uv0 + vec2(halfScaleCeil / textureSize.x, halfScaleCeil / textureSize.y);
-        vec2 bottomRightUV = v_uv0 + vec2(halfScaleCeil / textureSize.x, -halfScaleFloor / textureSize.y);
-        vec2 topLeftUV = v_uv0 + vec2(-halfScaleFloor / textureSize.x, halfScaleCeil / textureSize.y);
+        float ox = width / textureSize.x;
+        float oy = width / textureSize.y;
+        
+        vec2 pos1 = v_uv0 + vec2(-ox, -oy);
+        vec2 pos2 = v_uv0 + vec2(-ox, oy);
+        vec2 pos3 = v_uv0 + vec2(ox, -oy);
+        vec2 pos4 = v_uv0 + vec2(ox, oy);
+        
+        vec2 pos5 = v_uv0 + vec2(-ox, 0.);
+        vec2 pos6 = v_uv0 + vec2(ox, 0.);
+        vec2 pos7 = v_uv0 + vec2(0., -oy);
+        vec2 pos8 = v_uv0 + vec2(0., oy);
         
         vec4 noise = texture(noiseTexture, v_uv0 + cc_time.x);
         vec2 noiseOffset = vec2(noise.r * 0.01, noise.g * 0.0);
-        // noiseOffset.x *= (v_uv0 - 0.5).x / abs((v_uv0 - 0.5).x);
-        // noiseOffset.y *= (v_uv0 - 0.5).y / abs((v_uv0 - 0.5).y);
-        // sample
-        float p1 = texture(texture, bottomLeftUV + vec2(-noiseOffset.x, -noiseOffset.y)).a;
-        float p2 = texture(texture, topRightUV + vec2(noiseOffset.x, noiseOffset.y)).a;
-        float p3 = texture(texture, bottomRightUV + vec2(noiseOffset.x, -noiseOffset.y)).a;
-        float p4 = texture(texture, topLeftUV + vec2(-noiseOffset.x, noiseOffset.y)).a;
+        noiseOffset = vec2(0., 0.);
         
-        float diff0 = p2 - p1;
-        float diff1 = p4 - p3;
-        return sqrt(pow(diff0, 2.) + pow(diff1, 2.)) * step(texture(texture, v_uv0).a, 0.5);
+        // sample
+        float p1 = texture(texture, pos1).a;
+        float p2 = texture(texture, pos2).a;
+        float p3 = texture(texture, pos3).a;
+        float p4 = texture(texture, pos4).a;
+        
+        float p5 = texture(texture, pos5).a;
+        float p6 = texture(texture, pos6).a;
+        float p7 = texture(texture, pos7).a;
+        float p8 = texture(texture, pos8).a;
+        
+        return (p1 + p2 + p3 + p4 + p5 + p6 + p7 + p8) / 8.0 * step(texture(texture, v_uv0).a, 0.5);
     }
     
     vec4 lerp(vec4 a, vec4 b, float t) {
@@ -94,7 +101,8 @@ CCProgram fs %{
   void main () {
     vec4 o = texture(texture, v_uv0);
     float s2 = kernel(outlineWidth);
-    o = lerp(o, outlineColor, step(0.8, s2));
+    
+    o = lerp(o, outlineColor, smoothstep(0.1 - 0.1, 0.1 + 0.1, s2));
 
     gl_FragColor = o;
   }
