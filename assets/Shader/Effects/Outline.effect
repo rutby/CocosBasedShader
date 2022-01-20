@@ -63,8 +63,11 @@ CCProgram fs %{
   };
   
     float kernel(float width) {
-        float ox = width / textureSize.x;
-        float oy = width / textureSize.y;
+        vec4 noise = texture(noiseTexture, v_uv0 + fract(cc_time.x));
+        vec2 noiseOffset = vec2(noise.r * 0.01, noise.g * 0.01);
+        
+        float ox = width / textureSize.x + noiseOffset.x;
+        float oy = width / textureSize.y + noiseOffset.y;
         
         vec2 pos1 = v_uv0 + vec2(-ox, -oy);
         vec2 pos2 = v_uv0 + vec2(-ox, oy);
@@ -75,10 +78,6 @@ CCProgram fs %{
         vec2 pos6 = v_uv0 + vec2(ox, 0.);
         vec2 pos7 = v_uv0 + vec2(0., -oy);
         vec2 pos8 = v_uv0 + vec2(0., oy);
-        
-        vec4 noise = texture(noiseTexture, v_uv0 + cc_time.x);
-        vec2 noiseOffset = vec2(noise.r * 0.01, noise.g * 0.0);
-        noiseOffset = vec2(0., 0.);
         
         // sample
         float p1 = texture(texture, pos1).a;
