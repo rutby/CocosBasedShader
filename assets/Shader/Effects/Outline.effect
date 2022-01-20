@@ -12,6 +12,7 @@ CCEffect %{
         cullMode: none
       properties:
         texture: { value: white }
+        noiseTexture: { value: white }
         alphaThreshold: { value: 0.5 }
         outlineWidth: { value: 3.0 }
         textureSize: { value: [303, 380] }
@@ -53,6 +54,7 @@ CCProgram fs %{
   in vec4 v_color;
   in vec2 v_uv0;
   uniform sampler2D texture;
+  uniform sampler2D noiseTexture;
   
   uniform CUSTOM {
       vec4 outlineColor;
@@ -70,15 +72,19 @@ CCProgram fs %{
         vec2 bottomRightUV = v_uv0 + vec2(halfScaleCeil / textureSize.x, -halfScaleFloor / textureSize.y);
         vec2 topLeftUV = v_uv0 + vec2(-halfScaleFloor / textureSize.x, halfScaleCeil / textureSize.y);
         
+        vec4 noise = texture(noiseTexture, v_uv0 + cc_time.x);
+        vec2 noiseOffset = vec2(noise.r * 0.01, noise.g * 0.0);
+        // noiseOffset.x *= (v_uv0 - 0.5).x / abs((v_uv0 - 0.5).x);
+        // noiseOffset.y *= (v_uv0 - 0.5).y / abs((v_uv0 - 0.5).y);
         // sample
-        float p1 = texture(texture, bottomLeftUV).a;
-        float p2 = texture(texture, topRightUV).a;
-        float p3 = texture(texture, bottomRightUV).a;
-        float p4 = texture(texture, topLeftUV).a;
+        float p1 = texture(texture, bottomLeftUV + vec2(-noiseOffset.x, -noiseOffset.y)).a;
+        float p2 = texture(texture, topRightUV + vec2(noiseOffset.x, noiseOffset.y)).a;
+        float p3 = texture(texture, bottomRightUV + vec2(noiseOffset.x, -noiseOffset.y)).a;
+        float p4 = texture(texture, topLeftUV + vec2(-noiseOffset.x, noiseOffset.y)).a;
         
         float diff0 = p2 - p1;
         float diff1 = p4 - p3;
-        return sqrt(pow(diff0, 2.) + pow(diff1, 2.));
+        return sqrt(pow(diff0, 2.) + pow(diff1, 2.)) * step(texture(texture, v_uv0).a, 0.5);
     }
     
     vec4 lerp(vec4 a, vec4 b, float t) {
