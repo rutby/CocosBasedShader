@@ -1,0 +1,20 @@
+{
+  "__type__": "cc.Material",
+  "_name": "OutlineLine",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "1fd7443a-6cae-46d5-9040-fdfe826a8da4"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "noiseTexture": {
+          "__uuid__": "d0dcbe0a-fe0b-4ada-8a46-fa85a9958891"
+        }
+      },
+      "defines": {}
+    }
+  }
+}
