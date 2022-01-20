@@ -1,0 +1,20 @@
+{
+  "__type__": "cc.Material",
+  "_name": "Pixel",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "fc7c6eb4-6c0a-4df9-b36e-64bb96344aa6"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "noiseTexture": {
+          "__uuid__": "d0dcbe0a-fe0b-4ada-8a46-fa85a9958891"
+        }
+      },
+      "defines": {}
+    }
+  }
+}
