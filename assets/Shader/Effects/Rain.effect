@@ -14,89 +14,75 @@ CCEffect %{
         texture: { value: white }
         noiseTexture: { value: white }
         rippleTexture: { value: white }
-        speed: {value: 0.02}
-        force: {value: 2.}
+        speed: {value: 0.03}
+        force: {value: 0.9}
 }%
 
 
 CCProgram vs %{
-  precision highp float;
+    precision highp float;
 
-  #include <cc-global>
-  #include <cc-local>
+    #include <cc-global>
+    #include <cc-local>
 
-  in vec3 a_position;
-  in vec4 a_color;
-  out vec4 v_color;
+    in vec3 a_position;
+    in vec4 a_color;
+    out vec4 v_color;
 
-  in vec2 a_uv0;
-  out vec2 v_uv0;
+    in vec2 a_uv0;
+    out vec2 v_uv0;
 
-  void main () {
-    vec4 pos = vec4(a_position, 1);
-    pos = cc_matViewProj * pos;
-    
-    v_uv0 = a_uv0;
-    v_color = a_color;
-    gl_Position = pos;
-  }
+    void main () {
+        vec4 pos = vec4(a_position, 1);
+        pos = cc_matViewProj * pos;
+        
+        v_uv0 = a_uv0;
+        v_color = a_color;
+        gl_Position = pos;
+    }
 }%
 
 
 CCProgram fs %{
-  precision highp float;
-  
-  #include <alpha-test>
-  #include <cc-global>
-  
-  #define PI 3.141592653
+    precision highp float;
+    
+    #include <alpha-test>
+    #include <cc-global>
+    
+    #define PI 3.141592653
 
-  in vec4 v_color;
-  in vec2 v_uv0;
-  uniform sampler2D texture;
-  uniform sampler2D noiseTexture;
-  uniform sampler2D rippleTexture;
-  
-  uniform Rain {
-    float speed;
-    float force;
-  };
-  
-  float ripple(float emisive, vec2 pos, float radius) {
-    float d = length(v_uv0.xy - pos);
-    float s1 = step(d, radius * emisive);
-    float s2 = step(radius * 0.9  * emisive, d);
-    return step(2., s1 + s2);
-  }
+    in vec4 v_color;
+    in vec2 v_uv0;
+    uniform sampler2D texture;
+    uniform sampler2D noiseTexture;
+    uniform sampler2D rippleTexture;
+    
+    uniform Rain {
+        float speed;
+        float force;
+    };
 
-  void main () {
-    vec4 o = texture(texture, v_uv0);
-    
-    // rain
-    vec2 rain_uv = vec2(v_uv0.x, v_uv0.y * 0.02 - cc_time.x * speed);
-    // vec2 rain_uv = vec2(v_uv0.x, v_uv0.y * 0.03);
-    // vec2 rain_uv = vec2(v_uv0.x, v_uv0.y);
-    rain_uv.x += v_uv0.y * 0.3;
-    
-    vec4 col_rain = texture(noiseTexture, rain_uv);
-    // float f = (col_rain.r - force * col_rain.g - force * col_rain.b);
-    float f = (col_rain.r - force *  col_rain.g - force *  col_rain.b);
-    
-    f = smoothstep(0., 0.05, f);
-    // f = step(0.01, f);
-    // f = step(f, 0.01);
-    // f = clamp(f, 0., 1.);
-    // o.rgb += f;
-    o.rgb += vec3(f);
-    
-    // ripple
-    vec4 ripple = texture(rippleTexture, v_uv0);
-    float opacity = fract(ripple.a + cc_time.x);
-    float range = opacity - 1.0 + ripple.x;
-    float fadeout = 1. - opacity;
-    float final = fadeout * sin(clamp(range * 80.0, 0.0, 2.) * PI) * 2.0;
-    o.rgb += vec3(clamp(final, 0., 1.));
+    void main () {
+        vec4 o = texture(texture, vec2(v_uv0.x, 1. - v_uv0.y));
+        
+        // rain
+        vec2 rain_uv = vec2(v_uv0.x, v_uv0.y * 0.02 - cc_time.x * speed);
+        // 倾斜
+        rain_uv.x += v_uv0.y * 0.3;
+        
+        vec4 col_rain = texture(noiseTexture, rain_uv);
+        float f = (col_rain.r - force *  col_rain.g - force *  col_rain.b);
+        f = smoothstep(0., 0.05, f);
+        o.rgb += vec3(f);
+        
+        // ripple
+        vec4 ripple = texture(rippleTexture, v_uv0);
+        float opacity = fract(ripple.a + cc_time.x);
+        float range = opacity - 1.0 + ripple.x;
+        float fadeout = 1. - opacity;
+        float final = fadeout * sin(clamp(range * 80.0, 0.0, 2.) * PI) * 2.0;
+        o.rgb += vec3(clamp(final, 0., 1.));
 
-    gl_FragColor = o;
-  }
+        gl_FragColor = o;
+    }
 }%

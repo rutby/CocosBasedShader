@@ -19,51 +19,51 @@ CCEffect %{
 
 
 CCProgram vs %{
-  precision highp float;
+    precision highp float;
 
-  #include <cc-global>
-  #include <cc-local>
+    #include <cc-global>
+    #include <cc-local>
 
-  in vec3 a_position;
-  in vec4 a_color;
-  out vec4 v_color;
+    in vec3 a_position;
+    in vec4 a_color;
+    out vec4 v_color;
 
-  in vec2 a_uv0;
-  out vec2 v_uv0;
+    in vec2 a_uv0;
+    out vec2 v_uv0;
 
-  void main () {
-    vec4 pos = vec4(a_position, 1);
-    pos = cc_matViewProj * pos;
+    void main () {
+        vec4 pos = vec4(a_position, 1);
+        pos = cc_matViewProj * pos;
 
-    v_uv0 = a_uv0;
-    v_color = a_color;
+        v_uv0 = a_uv0;
+        v_color = a_color;
 
-    gl_Position = pos;
-  }
+        gl_Position = pos;
+    }
 }%
 
 
 CCProgram fs %{
-  precision highp float;
-  
-  #include <alpha-test>
-  #include <cc-global>
-  #include <cc-local>
+    precision highp float;
+    
+    #include <alpha-test>
+    #include <cc-global>
+    #include <cc-local>
 
-  in vec4 v_color;
-  in vec2 v_uv0;
-  uniform sampler2D texture;
-  uniform sampler2D noiseTexture;
+    in vec4 v_color;
+    in vec2 v_uv0;
+    uniform sampler2D texture;
+    uniform sampler2D noiseTexture;
   
     uniform CUSTOM {
         vec4 borderColor;
     };
 
-  void main () {
-    vec4 noise = texture(noiseTexture, vec2(v_uv0.x + cc_time.x * 0.1, v_uv0.y));
-    vec2 offset = (vec2(noise.r, noise.g) - 0.5) * 2.0;
-    vec4 o = texture(texture, v_uv0 + offset * 0.2);
-    
-    gl_FragColor = o;
-  }
+    void main () {
+        vec4 noise = texture(noiseTexture, vec2(v_uv0.x + cc_time.x * 0.1, v_uv0.y));
+        vec2 offset = (vec2(noise.r, noise.g) - 0.5) * 2.0;
+        vec4 o = texture(texture, v_uv0 + offset * 0.2);
+        
+        gl_FragColor = o;
+    }
 }%
