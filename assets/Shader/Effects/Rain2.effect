@@ -109,14 +109,14 @@ CCProgram fs %{
         float rand = hash12(vec2(newuv.z, newuv.w));
         // 生成ripple - rainForce的变化需要贴合ripple的持续时间
         float t = fract(cc_time.x + rand);
-        // float p = floor((cc_time.x + rand) / 2.0);
-        // t = fract(t + p * xStep);
+        // 每次loop更改裁剪随机数
+        float p = floor((cc_time.x + rand));
         
         // 将半径收束到0.1-0.4区间
         float radius = rand * 0.3 + 0.1;
         float rippleForce = percent * 50.;
-        radius *= step(50. + rippleForce, mod(floor(rand * 1000.), 100.));
-        radius *= 1. - percent;
+        radius *= step(50. + rippleForce, mod(floor(rand * (1. + p * 43758.5453) * 1000.), 100.));
+        // radius *= 1. - percent;
         float r = circle(t, vec2(newuv.x, newuv.y), radius);
         // 将亮度收束到0.3-1.0区间, 随时间递减
         // r *= (1. - t) * 0.7 + 0.3;
