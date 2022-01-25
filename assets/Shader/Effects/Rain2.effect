@@ -1,0 +1,143 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: vs
+      frag: fs
+      blendState:
+        targets:
+        - blend: true
+      rasterizerState:
+        cullMode: none
+      properties:
+        texture: { value: white }
+        noiseTexture: { value: white }
+        rainSpeed: {value: 0.03}
+        rainForce: {value: 0.9}
+        xStep: {value: 0.1919191}
+}%
+
+
+CCProgram vs %{
+    precision highp float;
+
+    #include <cc-global>
+    #include <cc-local>
+
+    in vec3 a_position;
+    in vec4 a_color;
+    out vec4 v_color;
+
+    in vec2 a_uv0;
+    out vec2 v_uv0;
+
+    void main () {
+        vec4 pos = vec4(a_position, 1);
+        pos = cc_matViewProj * pos;
+        
+        v_uv0 = a_uv0;
+        v_color = a_color;
+        gl_Position = pos;
+    }
+}%
+
+
+CCProgram fs %{
+    precision highp float;
+    
+    #include <alpha-test>
+    #include <cc-global>
+    
+    #define PI 3.141592653
+
+    in vec4 v_color;
+    in vec2 v_uv0;
+    uniform sampler2D texture;
+    uniform sampler2D noiseTexture;
+    
+    uniform Rain {
+        float rainSpeed;
+        float rainForce;
+        float xStep;
+    };
+    
+    float circle(float scale, vec2 pos, float radius) {
+        float b1 = radius * scale;
+        float b2 = radius * scale - 0.01;
+        
+        float d = length(pos - 0.5);
+        float s1 = step(d, b1);
+        float s2 = step(b2, d);
+        return step(2., s1 + s2);
+    }
+    
+    vec4 grid(float splitCount, vec2 offset) {
+        float piece = 1. / splitCount;
+        vec2 newuv = v_uv0 + offset;
+        
+        float gx = floor(newuv.x * splitCount) / splitCount;
+        float gy = floor(newuv.y * splitCount) / splitCount;
+        float nx = (newuv.x - gx) / piece;
+        float ny = (newuv.y - gy) / piece;
+        
+        return vec4(nx, ny, gx, gy);
+    }
+    
+    float hash12(vec2 p)
+    {
+        return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+    }
+    
+    float pow1(float a, const int b) {
+        float sum = 1.;
+        for (int i = 0; i < b; i++) {
+            sum += a;
+        }
+        return sum;
+    }
+    
+    float ripple(float splitCount) {
+        // 延Y轴方向产生偏移
+        float gy = floor(v_uv0.y * splitCount) / splitCount / 4.0;
+        // 将屏幕分割100份
+        vec4 newuv = grid(splitCount, vec2(gy, 0.));
+        
+        // 控制强度
+        float percent = clamp((rainForce - 0.9) / 0.15, 0., 1.);
+        // 随机半径
+        float rand = hash12(vec2(newuv.z, newuv.w));
+        // 生成ripple - rainForce的变化需要贴合ripple的持续时间
+        float t = fract(cc_time.x + rand);
+        // float p = floor((cc_time.x + rand) / 2.0);
+        // t = fract(t + p * xStep);
+        
+        // 将半径收束到0.1-0.4区间
+        float radius = rand * 0.3 + 0.1;
+        float rippleForce = percent * 50.;
+        radius *= step(50. + rippleForce, mod(floor(rand * 1000.), 100.));
+        radius *= 1. - percent;
+        float r = circle(t, vec2(newuv.x, newuv.y), radius);
+        // 将亮度收束到0.3-1.0区间, 随时间递减
+        // r *= (1. - t) * 0.7 + 0.3;
+        return r;
+    }
+
+    void main () {
+        vec4 o = texture(texture, vec2(v_uv0.x, v_uv0.y));
+        
+        // rain
+        vec2 rain_uv = vec2(v_uv0.x, v_uv0.y * 0.02 - cc_time.x * rainSpeed);
+        rain_uv.x += v_uv0.y * 0.3;
+        vec4 col_rain = texture(noiseTexture, rain_uv);
+        float f = (col_rain.r - rainForce *  col_rain.g - rainForce *  col_rain.b);
+        f = smoothstep(0., 0.05, f);
+        o.rgb += vec3(f);
+        
+        // ripple
+        o.rgb += ripple(10.0);
+        o.rgb += ripple(7.0);
+
+        gl_FragColor = o;
+    }
+}%

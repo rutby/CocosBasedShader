@@ -11,19 +11,23 @@ export default class FeatRainCtrl extends cc.Component {
     
     start () {
         this._material = this.getComponent(cc.Sprite).sharedMaterials[0];
+        
+        this.schedule(function() {
+            // this._material.setProperty('xStep', Math.random());
+        }, 1);
     }
     
     update(dt) {
         if (this._lastRainForce != DataGame.rainForce) {
             this._lastRainForce = DataGame.rainForce;
-            this._material.setProperty('force', this._lastRainForce);
-            console.log('=====develop=====', 'force', this._lastRainForce);
+            this._material.setProperty('rainForce', this._lastRainForce);
+            console.log('=====develop=====', 'rainForce', this._lastRainForce);
         }
         
         if (this._lastRainSpeed != DataGame.rainSpeed) {
             this._lastRainSpeed = DataGame.rainSpeed;
-            this._material.setProperty('speed', this._lastRainSpeed);
-            console.log('=====develop=====', 'speed', this._lastRainSpeed);
+            this._material.setProperty('rainSpeed', this._lastRainSpeed);
+            console.log('=====develop=====', 'rainSpeed', this._lastRainSpeed);
         }
     }
 }
