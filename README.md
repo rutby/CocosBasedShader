@@ -27,3 +27,7 @@
 #### 6. 消融
 
 ![](preview/dissolve.gif)
+
+#### 7. SDF形变
+
+![](preview/sdf_transition.gif)
