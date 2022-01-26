@@ -58,7 +58,7 @@
     "_groupIndex": 0,
     "groupIndex": 0,
     "autoReleaseAssets": false,
-    "_id": "7b421ead-a4e7-4087-8bac-9aad67bb23b3"
+    "_id": "4b841842-4a75-4fea-bc7a-a306c363c8f7"
   },
   {
     "__type__": "cc.Node",
@@ -171,7 +171,7 @@
       "array": [
         0,
         0,
-        458.9934640057525,
+        584.5671475544962,
         0,
         0,
         0,
@@ -290,7 +290,7 @@
     "_is3DNode": false,
     "_groupIndex": 0,
     "groupIndex": 0,
-    "_id": "2acCXbEY9P+7PS8GNyijcs"
+    "_id": "a9PwWoOoRI77bywD0ceoas"
   },
   {
     "__type__": "cc.Sprite",
@@ -302,7 +302,7 @@
     "_enabled": true,
     "_materials": [
       {
-        "__uuid__": "aa9ccb15-f2aa-4b5d-9740-be69202269b2"
+        "__uuid__": "316b1a2e-9c1c-4658-8888-418d9d587b6e"
       }
     ],
     "_srcBlendFactor": 770,
@@ -322,7 +322,7 @@
     "_fillRange": 0,
     "_isTrimmedMode": true,
     "_atlas": null,
-    "_id": "bfuf4JCz9J2a6+vKV0bmE7"
+    "_id": "65vQ1GEnhNEKNy8t7NJx4H"
   },
   {
     "__type__": "cc.Canvas",

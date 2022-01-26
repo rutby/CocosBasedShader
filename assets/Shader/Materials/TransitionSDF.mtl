@@ -1,0 +1,23 @@
+{
+  "__type__": "cc.Material",
+  "_name": "TransitionSDF",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "f5e285ac-6f25-4ff6-894a-6d8499ab44ba"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "defines": {},
+      "props": {
+        "maskTexture1": {
+          "__uuid__": "88a4136d-1ab2-4e85-9370-85f810841200"
+        },
+        "maskTexture2": {
+          "__uuid__": "8eede0df-b8cc-4b72-99b1-b23a3cddc9b1"
+        }
+      }
+    }
+  }
+}
