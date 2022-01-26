@@ -1,0 +1,20 @@
+{
+  "__type__": "cc.Material",
+  "_name": "SDF",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "ad462fa7-5bee-4955-b8cf-7d1293eab0f5"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "defines": {},
+      "props": {
+        "maskTexture": {
+          "__uuid__": "88a4136d-1ab2-4e85-9370-85f810841200"
+        }
+      }
+    }
+  }
+}

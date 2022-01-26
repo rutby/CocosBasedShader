@@ -1,0 +1,77 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: vs
+      frag: fs
+      blendState:
+        targets:
+        - blend: true
+      rasterizerState:
+        cullMode: none
+      properties:
+        texture: { value: white }
+        maskTexture: { value: white }
+        alphaThreshold: { value: 0.5 }
+}%
+
+
+CCProgram vs %{
+  precision highp float;
+
+  #include <cc-global>
+  #include <cc-local>
+
+  in vec3 a_position;
+  in vec4 a_color;
+  out vec4 v_color;
+
+  in vec2 a_uv0;
+  out vec2 v_uv0;
+
+  void main () {
+    vec4 pos = vec4(a_position, 1);
+    pos = cc_matViewProj * pos;
+
+    v_uv0 = a_uv0;
+    v_color = a_color;
+
+    gl_Position = pos;
+  }
+}%
+
+
+CCProgram fs %{
+  precision highp float;
+  
+  #include <alpha-test>
+  #include <cc-global>
+  #include <cc-local>
+
+  in vec4 v_color;
+  in vec2 v_uv0;
+  uniform sampler2D texture;
+  uniform sampler2D maskTexture;
+
+  void main () {
+        vec4 outlineColor = vec4(0.086, 0.407, 1., 1.);
+        vec4 o = texture(texture, v_uv0);
+        vec4 mask = texture(maskTexture, v_uv0);
+        
+        
+        // arg1: 侵入图像内部的深度. 值越大, 侵入程度越高
+        // arg2: 控制内轮廓宽度.
+        // arg3: 控制外轮廓最远距离. 值越小, 轮廓可触达的范围更远
+        // arg4: 控制外轮廓宽度. 值越大, 宽度越小
+        o = mix(o, outlineColor, smoothstep(0.7, 0.5, mask.a) * smoothstep(0.05, 0.4, mask.a));
+        
+        // 效果2: 镂空外轮廓线
+        // o = mix(o, outlineColor, smoothstep(0.33, 0.3, mask.a) * smoothstep(0.1, 0.2, mask.a));
+        
+        // 效果3: 仅展示轮廓
+        // o = outlineColor * smoothstep(0.7, 0.5, mask.a) * smoothstep(0.05, 0.4, mask.a);
+
+        gl_FragColor = o;
+  }
+}%
