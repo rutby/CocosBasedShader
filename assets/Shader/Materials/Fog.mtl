@@ -1,0 +1,20 @@
+{
+  "__type__": "cc.Material",
+  "_name": "CurveAdd",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "ecb260c0-d6f3-46d2-a26e-a42ae975a239"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "defines": {},
+      "props": {
+        "noiseTexture": {
+          "__uuid__": "a4640a54-5b90-401b-ba7f-4c1915407897"
+        }
+      }
+    }
+  }
+}

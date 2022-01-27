@@ -31,3 +31,7 @@
 #### 7. SDF形变
 
 ![](preview/sdf_transition.gif)
+
+#### 7. 雾气
+
+![](preview/fog.gif)

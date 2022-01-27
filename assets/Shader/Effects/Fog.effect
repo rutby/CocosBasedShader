@@ -1,0 +1,102 @@
+// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: vs
+      frag: fs
+      blendState:
+        targets:
+        - blend: true
+      rasterizerState:
+        cullMode: none
+      properties:
+        texture: { value: white }
+        noiseTexture: { value: white }
+        alphaThreshold: { value: 0.5 }
+}%
+
+
+CCProgram vs %{
+  precision highp float;
+
+  #include <cc-global>
+  #include <cc-local>
+
+  in vec3 a_position;
+  in vec4 a_color;
+  out vec4 v_color;
+
+  in vec2 a_uv0;
+  out vec2 v_uv0;
+
+  void main () {
+    vec4 pos = vec4(a_position, 1);
+    pos = cc_matViewProj * pos;
+
+    v_uv0 = a_uv0;
+    v_color = a_color;
+
+    gl_Position = pos;
+  }
+}%
+
+
+CCProgram fs %{
+  precision highp float;
+  
+  #include <alpha-test>
+  #include <cc-global>
+  #include <cc-local>
+
+  in vec4 v_color;
+  in vec2 v_uv0;
+  uniform sampler2D texture;
+  uniform sampler2D noiseTexture;
+  
+    // ------------------------------------------
+    const vec4 COLOR = vec4(1., 1., 1., 1.);
+    const int OCTAVES = 10;
+    const float INTENSITY = 2.;
+    
+    vec2 random(vec2 st){
+        st = vec2( dot(st,vec2(127.1,311.7)), dot(st,vec2(269.5,183.3)) );
+        return -1.0 + 2.0 * fract(sin(st) * 7.);
+    }
+    
+    float noise(vec2 st) {
+        vec2 i = floor(st);
+        vec2 f = fract(st);
+
+        // smootstep
+        vec2 u = f*f*(3.0-2.0*f);
+
+        return mix( mix( dot( random(i + vec2(0.0,0.0) ), f - vec2(0.0,0.0) ),
+                        dot( random(i + vec2(1.0,0.0) ), f - vec2(1.0,0.0) ), u.x),
+                    mix( dot( random(i + vec2(0.0,1.0) ), f - vec2(0.0,1.0) ),
+                        dot( random(i + vec2(1.0,1.0) ), f - vec2(1.0,1.0) ), u.x), u.y);
+    }
+    
+    float fbm(vec2 coord) {
+        float value = 0.0;
+        float scale = .3;
+        for (int i = 0; i < OCTAVES; i++) {
+            value += noise(coord) * scale;
+            coord *= 2.0;
+            scale *= 0.5;
+        }
+        return value + 0.3;
+    }
+
+    void main () {
+        vec4 o = texture(texture, v_uv0);
+        vec2 pos1 = v_uv0 + vec2(cc_time.x * 0.1, cc_time.x * -0.1);
+        vec2 pos2 = v_uv0 + vec2(cc_time.x * 0.4, cc_time.x * -0.3);
+        vec2 motion = vec2(fbm(pos1));
+        float final = fbm(pos2 + motion) * INTENSITY;
+        final = clamp(final, 0., 1.);
+        
+        o = mix(o, COLOR, final);
+        gl_FragColor = o;
+    }
+}%
