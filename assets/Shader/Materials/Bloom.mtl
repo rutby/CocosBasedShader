@@ -1,0 +1,17 @@
+{
+  "__type__": "cc.Material",
+  "_name": "Glow",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "b57abecb-b0c6-40de-bf2a-6370962a1963"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}

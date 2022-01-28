@@ -30,13 +30,13 @@ CCProgram vs %{
   out vec2 v_uv0;
 
   void main () {
-        v_uv0 = a_uv0;
-        v_color = a_color;
-      
-        vec4 pos = vec4(a_position, 1);
-        pos = cc_matViewProj * pos;
-        
-        gl_Position = pos;
+    vec4 pos = vec4(a_position, 1);
+    pos = cc_matViewProj * pos;
+
+    v_uv0 = a_uv0;
+    v_color = a_color;
+
+    gl_Position = pos;
   }
 }%
 
@@ -51,33 +51,47 @@ CCProgram fs %{
     in vec4 v_color;
     in vec2 v_uv0;
     uniform sampler2D texture;
-  
+    
+    vec4 filter(vec4 o) {
+        float lumiance = dot(vec3(0.2126, 0.7152, 0.0722), o.rgb);
+        float t = fract(cc_time.x * 0.5) * 0.3 + 0.6;
+        return vec4(o.rgba * step(t, lumiance));
+    }
+    
+    vec4 getTex(vec2 pos) {
+        return filter(texture(texture, pos));
+    }
+    
     vec4 guassianBlur() {
-        vec2 offset = vec2(1. / 305., 1. / 405.);
+        vec2 offset = vec2(1. / 445., 1. / 483.);
         float weight[5];
         weight[0] = 0.227027;
         weight[1] = 0.1945946;
         weight[2] = 0.1216216;
         weight[3] = 0.054054;
         weight[4] = 0.016216;
-        vec4 result = texture(texture, v_uv0) * weight[0];
+        vec4 result = getTex(v_uv0) * weight[0];
         
         // horizontal
         for (int i = 1; i < 5; i++) {
-            result += texture(texture, v_uv0 + vec2(offset.x * float(i), 0.0)) * weight[i] / 2.;
-            result += texture(texture, v_uv0 - vec2(offset.x * float(i), 0.0)) * weight[i] / 2.;
+            result += getTex(v_uv0 + vec2(offset.x * float(i), 0.0)) * weight[i] / 2.;
+            result += getTex(v_uv0 - vec2(offset.x * float(i), 0.0)) * weight[i] / 2.;
         }
         
         // vertical
         for (int i = 1; i < 5; i++) {
-            result += texture(texture, v_uv0 + vec2(0.0, offset.y * float(i))) * weight[i] / 2.;
-            result += texture(texture, v_uv0 - vec2(0.0, offset.y * float(i))) * weight[i] / 2.;
+            result += getTex(v_uv0 + vec2(0.0, offset.y * float(i))) * weight[i] / 2.;
+            result += getTex(v_uv0 - vec2(0.0, offset.y * float(i))) * weight[i] / 2.;
         }
         
         return result;
     }
 
     void main () {
-        gl_FragColor = guassianBlur();
+        vec4 o = texture(texture, v_uv0);
+        vec4 blur = guassianBlur();
+        o += blur;
+        
+        gl_FragColor = o;
     }
 }%
