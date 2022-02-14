@@ -1,0 +1,23 @@
+{
+  "__type__": "cc.Material",
+  "_name": "Multi-Texture-2D",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "c26bdfe9-861a-473a-a9df-deb295520e43"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "texture0": {
+          "__uuid__": "3d7bac0e-6ab7-4717-97dc-f0349384f6ad"
+        },
+        "texture1": {
+          "__uuid__": "ecefeb3b-a4e1-4bd5-98e4-1add76427672"
+        }
+      },
+      "defines": {}
+    }
+  }
+}
