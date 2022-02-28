@@ -32,6 +32,11 @@
 
 ![](preview/sdf_transition.gif)
 
-#### 7. 雾气
+#### 8. 雾气
 
 ![](preview/fog.gif)
+
+#### 9. 文字与图片合并渲染批次
+
+![](preview/slbatch.png)
+> 图中FPS的显示单独一个Drawcall, 剩下的Cocos图标和按钮一个Drawcall(分属不同图集). 引擎部分的修改参见[git-patch](preview/slbatch.patch)

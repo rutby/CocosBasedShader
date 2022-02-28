@@ -1,0 +1,567 @@
+From eb08f719991c947a8214e5bee18ed011aae87e53 Mon Sep 17 00:00:00 2001
+From: chentao <chentao@moqipobing.com>
+Date: Mon, 28 Feb 2022 17:00:17 +0800
+Subject: [PATCH] =?UTF-8?q?feat:=20=E8=87=AA=E5=AE=9A=E4=B9=89=E6=96=87?=
+ =?UTF-8?q?=E5=AD=97=E4=B8=8E=E5=9B=BE=E7=89=87=E5=90=88=E5=B9=B6=E6=89=B9?=
+ =?UTF-8?q?=E6=AC=A1?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ cocos2d/core/assets/CCBitmapFont.js           |   5 +
+ cocos2d/core/components/CCRenderComponent.js  |  23 +++-
+ cocos2d/core/renderer/assembler-2d.js         |  38 ++++--
+ cocos2d/core/renderer/assembler.js            |   4 +-
+ cocos2d/core/renderer/render-flow.js          |  15 +++
+ cocos2d/core/renderer/utils/label/bmfont.js   |  25 +++-
+ .../core/renderer/utils/label/letter-font.js  | 118 +++++++++++++++++-
+ .../webgl/assemblers/label/2d/bmfont.js       |   7 ++
+ cocos2d/core/renderer/webgl/mesh-buffer.js    |  16 +++
+ cocos2d/core/renderer/webgl/model-batcher.js  |   4 +-
+ cocos2d/core/renderer/webgl/vertex-format.js  |  11 ++
+ 11 files changed, 242 insertions(+), 24 deletions(-)
+
+diff --git a/cocos2d/core/assets/CCBitmapFont.js b/cocos2d/core/assets/CCBitmapFont.js
+index fdffe30..1fec7df 100644
+--- a/cocos2d/core/assets/CCBitmapFont.js
++++ b/cocos2d/core/assets/CCBitmapFont.js
+@@ -34,6 +34,11 @@ let FontLetterDefinition = function() {
+     this.textureID = 0;
+     this.valid = false;
+     this.xAdvance = 0;
++    
++    this.originW = 0;
++    this.originH = 0;
++    this.hash = 0;
++    this.refCount = 0;
+ };
+ 
+ let FontAtlas = function (texture) {
+diff --git a/cocos2d/core/components/CCRenderComponent.js b/cocos2d/core/components/CCRenderComponent.js
+index 25f95cb..c80255e 100644
+--- a/cocos2d/core/components/CCRenderComponent.js
++++ b/cocos2d/core/components/CCRenderComponent.js
+@@ -53,6 +53,7 @@ let RenderComponent = cc.Class({
+             default: [],
+             type: Material,
+         },
++        _texId: 0,
+ 
+         /**
+          * !#en The materials used by this render component.
+@@ -70,7 +71,20 @@ let RenderComponent = cc.Class({
+             type: [Material],
+             displayName: 'Materials',
+             animatable: false
+-        }
++        },
++        
++        texId: {
++            get () {
++                return this._texId;
++            },
++            set (value) {
++                if (this._texId != value) {
++                    this._texId = value;
++
++                    this.node._renderFlag |= RenderFlow.FLAG_EXTEND;
++                }
++            }
++        },
+     },
+     
+     ctor () {
+@@ -81,6 +95,7 @@ let RenderComponent = cc.Class({
+     _resetAssembler () {
+         Assembler.init(this);
+         this._updateColor();
++        this._updateExtend();
+     },
+ 
+     __preload () {
+@@ -232,6 +247,12 @@ let RenderComponent = cc.Class({
+             this._assembler.updateColor(this);
+         }
+     },
++    
++    _updateExtend () {
++        if (this._assembler.updateExtend) {
++            this._assembler.updateExtend(this);
++        }
++    },
+ 
+     _checkBacth (renderer, cullingMask) {
+         let material = this._materials[0];
+diff --git a/cocos2d/core/renderer/assembler-2d.js b/cocos2d/core/renderer/assembler-2d.js
+index 2dc2b9e..1b5e842 100644
+--- a/cocos2d/core/renderer/assembler-2d.js
++++ b/cocos2d/core/renderer/assembler-2d.js
+@@ -36,6 +36,16 @@ export default class Assembler2D extends Assembler {
+             uintVerts[i] = color;
+         }
+     }
++    
++    updateExtend(comp) {
++        let uintVerts = this._renderData.uintVDatas[0];
++        if (!uintVerts) return;
++        let floatsPerVert = this.floatsPerVert;
++        let extOffset = this.extOffset;
++        for (let i = extOffset, l = uintVerts.length; i < l; i += floatsPerVert) {
++            uintVerts[i] = (comp.texId << 24) >>> 0;
++        }
++    }
+ 
+     getBuffer () {
+         return cc.renderer._handle._meshBuffer;
+@@ -54,20 +64,21 @@ export default class Assembler2D extends Assembler {
+             vb = local[1], vt = local[3];
+         
+         let justTranslate = a === 1 && b === 0 && c === 0 && d === 1;
++        var floatsPerVert = this.floatsPerVert;
+ 
+         if (justTranslate) {
+             // left bottom
+             verts[0] = vl + tx;
+             verts[1] = vb + ty;
+             // right bottom
+-            verts[5] = vr + tx;
+-            verts[6] = vb + ty;
++            verts[0 + floatsPerVert * 1] = vr + tx;
++            verts[1 + floatsPerVert * 1] = vb + ty;
+             // left top
+-            verts[10] = vl + tx;
+-            verts[11] = vt + ty;
++            verts[0 + floatsPerVert * 2] = vl + tx;
++            verts[1 + floatsPerVert * 2] = vt + ty;
+             // right top
+-            verts[15] = vr + tx;
+-            verts[16] = vt + ty;
++            verts[0 + floatsPerVert * 3] = vr + tx;
++            verts[1 + floatsPerVert * 3] = vt + ty;
+         } else {
+             let al = a * vl, ar = a * vr,
+             bl = b * vl, br = b * vr,
+@@ -78,14 +89,14 @@ export default class Assembler2D extends Assembler {
+             verts[0] = al + cb + tx;
+             verts[1] = bl + db + ty;
+             // right bottom
+-            verts[5] = ar + cb + tx;
+-            verts[6] = br + db + ty;
++            verts[0 + floatsPerVert * 1] = ar + cb + tx;
++            verts[1 + floatsPerVert * 1] = br + db + ty;
+             // left top
+-            verts[10] = al + ct + tx;
+-            verts[11] = bl + dt + ty;
++            verts[0 + floatsPerVert * 2] = al + ct + tx;
++            verts[1 + floatsPerVert * 2] = bl + dt + ty;
+             // right top
+-            verts[15] = ar + ct + tx;
+-            verts[16] = br + dt + ty;
++            verts[0 + floatsPerVert * 3] = ar + ct + tx;
++            verts[1 + floatsPerVert * 3] = br + dt + ty;
+         }
+     }
+ 
+@@ -143,7 +154,8 @@ export default class Assembler2D extends Assembler {
+ }
+ 
+ cc.js.addon(Assembler2D.prototype, {
+-    floatsPerVert: 5,
++    floatsPerVert: 6,
++    extOffset: 5,
+ 
+     verticesCount: 4,
+     indicesCount: 6,
+diff --git a/cocos2d/core/renderer/assembler.js b/cocos2d/core/renderer/assembler.js
+index b2cafd0..b5d06a3 100644
+--- a/cocos2d/core/renderer/assembler.js
++++ b/cocos2d/core/renderer/assembler.js
+@@ -1,4 +1,4 @@
+-import { vfmtPosUvColor } from './webgl/vertex-format';
++import { vfmtPosUvColorTexture } from './webgl/vertex-format';
+ import assemblerPool from './assembler-pool';
+ 
+ export default class Assembler {
+@@ -16,7 +16,7 @@ export default class Assembler {
+     }
+     
+     getVfmt () {
+-        return vfmtPosUvColor;
++        return vfmtPosUvColorTexture;
+     }
+ }
+ 
+diff --git a/cocos2d/core/renderer/render-flow.js b/cocos2d/core/renderer/render-flow.js
+index b2e9768..f7519a4 100644
+--- a/cocos2d/core/renderer/render-flow.js
++++ b/cocos2d/core/renderer/render-flow.js
+@@ -9,6 +9,7 @@ const UPDATE_RENDER_DATA = 1 << FlagOfset++;
+ const OPACITY = 1 << FlagOfset++;
+ const COLOR = 1 << FlagOfset++;
+ const OPACITY_COLOR = OPACITY | COLOR;
++const EXTEND = 1 << FlagOfset++;
+ const RENDER = 1 << FlagOfset++;
+ const CHILDREN = 1 << FlagOfset++;
+ const POST_RENDER = 1 << FlagOfset++;
+@@ -123,6 +124,16 @@ _proto._postRender = function (node) {
+     this._next._func(node);
+ };
+ 
++_proto._extend = function (node) {
++    let comp = node._renderComponent;
++    if (comp) {
++        comp._updateExtend();
++    }
++
++    node._renderFlag &= ~EXTEND;
++    this._next._func(node);
++};
++
+ const EMPTY_FLOW = new RenderFlow();
+ EMPTY_FLOW._func = EMPTY_FLOW._doNothing;
+ EMPTY_FLOW._next = EMPTY_FLOW;
+@@ -164,6 +175,9 @@ function createFlow (flag, next) {
+         case POST_RENDER: 
+             flow._func = flow._postRender;
+             break;
++        case EXTEND: 
++            flow._func = flow._extend;
++            break;
+     }
+ 
+     return flow;
+@@ -270,6 +284,7 @@ RenderFlow.FLAG_UPDATE_RENDER_DATA = UPDATE_RENDER_DATA;
+ RenderFlow.FLAG_RENDER = RENDER;
+ RenderFlow.FLAG_CHILDREN = CHILDREN;
+ RenderFlow.FLAG_POST_RENDER = POST_RENDER;
++RenderFlow.FLAG_EXTEND = EXTEND;
+ RenderFlow.FLAG_FINAL = FINAL;
+ 
+ module.exports = cc.RenderFlow = RenderFlow;
+diff --git a/cocos2d/core/renderer/utils/label/bmfont.js b/cocos2d/core/renderer/utils/label/bmfont.js
+index bf5feb2..c553b39 100644
+--- a/cocos2d/core/renderer/utils/label/bmfont.js
++++ b/cocos2d/core/renderer/utils/label/bmfont.js
+@@ -77,11 +77,29 @@ let _labelHeight = 0;
+ let _maxLineWidth = 0;
+ 
+ export default class BmfontAssembler extends Assembler2D {
++    // 引入_refLetters字段
++    constructor() {
++        super();
++        this._refLetters = [];
++    }
++    
++    // cc.label销毁时清理引用
++    _resetAssemblerData (assemblerData) {
++        this._decreseLetterRef();
++        this._refLetters = [];
++    }
++    
++    _decreseLetterRef() {
++    }
++    
+     updateRenderData (comp) {
+         if (!comp._vertsDirty) return;
+         if (_comp === comp) return;
+ 
+         _comp = comp;
++        // 每次更新时减少旧字符的引用
++        this._decreseLetterRef();
++        this._refLetters = [];
+         
+         this._reserveQuads(comp, comp.string.toString().length);
+         this._updateFontFamily(comp);
+@@ -227,9 +245,14 @@ export default class BmfontAssembler extends Assembler2D {
+                 letterDef = shareLabelInfo.fontAtlas.getLetterDefinitionForChar(character, shareLabelInfo);
+                 if (!letterDef) {
+                     this._recordPlaceholderInfo(letterIndex, character);
+-                    console.log("Can't find letter definition in texture atlas " + _fntConfig.atlasName + " for letter:" + character);
++                    // console.log("Can't find letter definition in texture atlas " + _fntConfig.atlasName + " for letter:" + character);
+                     continue;
+                 }
++                // 额外判定hash以剔除bitmap模式
++                if (letterDef && letterDef.hash) {
++                    this._refLetters.push(letterDef.hash);
++                    letterDef.refCount++;
++                }
+ 
+                 let letterX = nextLetterX + letterDef.offsetX * _bmfontScale - shareLabelInfo.margin;
+ 
+diff --git a/cocos2d/core/renderer/utils/label/letter-font.js b/cocos2d/core/renderer/utils/label/letter-font.js
+index 7edd36d..c154298 100644
+--- a/cocos2d/core/renderer/utils/label/letter-font.js
++++ b/cocos2d/core/renderer/utils/label/letter-font.js
+@@ -64,6 +64,19 @@ LetterTexture.prototype = {
+         this._updateProperties();
+         this._updateTexture();
+     },
++    
++    calcTextSize(char, labelInfo) {
++        var context = Label._canvasPool.get().context;
++        context.font = labelInfo.fontDesc;
++        var width = textUtils.safeMeasureText(context, char, labelInfo.fontDesc);
++        var blank = labelInfo.margin * 2 + bleed;
++        
++        return [
++            parseFloat(width.toFixed(2)) + blank,
++            (1 + textUtils.BASELINE_RATIO) * labelInfo.fontSize + blank,
++        ]
++    },
++    
+     _updateProperties () {
+         this._texture = new cc.Texture2D();
+         this._data = Label._canvasPool.get();
+@@ -138,11 +151,34 @@ function LetterAtlas (width, height) {
+ 
+     this._width = width;
+     this._height = height;
++    this._safeHeight = height * 0.8;
+ 
+     cc.director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
+ }
+ 
+ cc.js.mixin(LetterAtlas.prototype, {
++    canInsertLabel(char, labelInfo, force) {
++        var sizeArr = LetterTexture.prototype.calcTextSize(char, labelInfo);
++        var width = sizeArr[0], height = sizeArr[1];
++        var nextY = this._nexty;
++        var thisY = this._y;
++        
++        if ((this._x + width + space) > this._width) {
++            thisY = this._nexty;
++        }
++
++        if ((thisY + height) > nextY) {
++            nextY = thisY + height + space;
++        }
++        
++        var maxY = force? this._height : this._safeHeight;
++        if(nextY > maxY) {
++            return [false, width, height];
++        }
++        
++        return [true, width, height];
++    },
++    
+     insertLetterTexture (letterTexture) {
+         let texture = letterTexture._texture;
+         let width = texture.width, height = texture.height;        
+@@ -173,6 +209,12 @@ cc.js.mixin(LetterAtlas.prototype, {
+         letter.h = letterTexture._height - bleed;
+         letter.xAdvance = letter.w;
+         letter.offsetY = letterTexture._offsetY;
++        
++        // 记录回收机制所需信息
++        letter.originW = letterTexture._width;
++        letter.originH = letterTexture._height; // this._nexty - this._y
++        letter.hash = letterTexture._hash;
++        letter.refCount = 0;
+ 
+         this._x += width + space;
+ 
+@@ -180,6 +222,27 @@ cc.js.mixin(LetterAtlas.prototype, {
+         
+         return letter
+     },
++    
++    replaceLetterTexture(oldLetter, letterTexture) {
++        var oldHash = oldLetter.hash;
++        var texture = letterTexture._texture;
++        
++        this._dirty = true;
++        
++        this._fontDefDictionary._texture.drawTextureAt(texture, oldLetter.u - bleed/2, oldLetter.v - bleed/2);
++        oldLetter.w = letterTexture._width - bleed;
++        oldLetter.h = letterTexture._height - bleed;
++        oldLetter.xAdvance = oldLetter.w;
++        oldLetter.offsetY = letterTexture._offsetY;
++        
++        oldLetter.hash = letterTexture._hash;
++        oldLetter.refCount = 0;
++        
++        this._fontDefDictionary.addLetterDefinitions(letterTexture._hash, oldLetter);
++        delete this._fontDefDictionary._letterDefinitions[oldHash];
++        
++        return oldLetter;
++    },
+ 
+     update () {
+         if (!this._dirty) return;
+@@ -236,14 +299,49 @@ cc.js.mixin(LetterAtlas.prototype, {
+         let hash = char.charCodeAt(0) + labelInfo.hash;
+         let letter = this._fontDefDictionary._letterDefinitions[hash];
+         if (!letter) {
+-            let temp = new LetterTexture(char, labelInfo);
+-            temp.updateRenderData();
+-            letter = this.insertLetterTexture(temp);
+-            temp.destroy();
++            // 判定当前空间是否可容纳
++            var [valid, width, height] = this.canInsertLabel(char, labelInfo)
++            if (valid) {
++                letter = this._insertNewLetter(char, labelInfo);
++            } else {
++                // 收集废弃字符
++                var letterDefinitions = this._fontDefDictionary._letterDefinitions
++                var oldLetter = null;
++                for(var key in letterDefinitions) {
++                    var l = letterDefinitions[key];
++                    if (l.refCount < 1 && l.originW >= width && l.originH >= height) {
++                        oldLetter = l;
++                        break;
++                    }
++                }
++                
++                // 有可容纳的废弃空间
++                if (oldLetter) {
++                    let temp = new LetterTexture(char, labelInfo);
++                    temp.updateRenderData();
++                    letter = this.replaceLetterTexture(oldLetter, temp);
++                    temp.destroy();
++                } else {
++                    // 安全区域用完了, 在不安全区域覆盖式绘制
++                    if (this.canInsertLabel(char, labelInfo, true)[0]) {
++                        letter = this._insertNewLetter(char, labelInfo);
++                    } else {
++                        console.error('cc.Label._shareAtlas out of range!');
++                    }
++                }
++            }
+         }
+ 
+         return letter;
+-    }
++    },
++    
++    _insertNewLetter(char, labelInfo) {
++        let temp = new LetterTexture(char, labelInfo);
++        temp.updateRenderData();
++        var letter = this.insertLetterTexture(temp);
++        temp.destroy();
++        return letter;
++    },
+ });
+ 
+ function computeHash (labelInfo) {
+@@ -272,6 +370,16 @@ export default class LetterFontAssembler extends WebglBmfontAssembler {
+         
+         return _shareAtlas.getTexture();
+     }
++    
++    _decreseLetterRef() {
++        for(var key in this._refLetters) {
++            var hash = this._refLetters[key];
++            var letterDef = _shareAtlas._fontDefDictionary._letterDefinitions[hash];
++            if (letterDef) {
++                letterDef.refCount--;
++            }
++        }
++    }
+ 
+     _updateFontFamily (comp) {
+         shareLabelInfo.fontAtlas = _shareAtlas;
+diff --git a/cocos2d/core/renderer/webgl/assemblers/label/2d/bmfont.js b/cocos2d/core/renderer/webgl/assemblers/label/2d/bmfont.js
+index ac90d01..e683199 100644
+--- a/cocos2d/core/renderer/webgl/assemblers/label/2d/bmfont.js
++++ b/cocos2d/core/renderer/webgl/assemblers/label/2d/bmfont.js
+@@ -134,6 +134,13 @@ export default class WebglBmfontAssembler extends BmfontAssembler {
+             uintVerts[colorOffset] = color;
+             colorOffset += floatsPerVert;
+         }
++        
++        // ext
++        let extOffset = _dataOffset + this.extOffset;
++        for (let i = 0; i < 4; i++) {
++            uintVerts[extOffset] = (comp.texId << 24) >>> 0;
++            extOffset += floatsPerVert;
++        }
+ 
+         _dataOffset += this.floatsPerVert * 4;
+     }
+diff --git a/cocos2d/core/renderer/webgl/mesh-buffer.js b/cocos2d/core/renderer/webgl/mesh-buffer.js
+index 2198a23..d82b97a 100644
+--- a/cocos2d/core/renderer/webgl/mesh-buffer.js
++++ b/cocos2d/core/renderer/webgl/mesh-buffer.js
+@@ -24,6 +24,7 @@
+  ****************************************************************************/
+ 
+ import gfx from '../../../renderer/gfx';
++const FIX_IOS14_BUFFER = (cc.sys.os === cc.sys.OS_IOS || cc.sys.os === cc.sys.OS_OSX) && cc.sys.isBrowser && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
+ 
+ let MeshBuffer = cc.Class({
+     name: 'cc.MeshBuffer',
+@@ -258,4 +259,19 @@ let MeshBuffer = cc.Class({
+     }
+ });
+ 
++// Should not share vb and id between multiple drawcalls on iOS14, it will cost a lot of time.
++// TODO: maybe remove it after iOS14 fix it?
++if (FIX_IOS14_BUFFER) {
++    MeshBuffer.prototype.checkAndSwitchBuffer = function (vertexCount) {
++        if (this.vertexOffset + vertexCount > 65535) {
++            this.uploadData();
++            this._batcher._flush();
++        }
++    };     
++    MeshBuffer.prototype.forwardIndiceStartToOffset = function () {
++        this.uploadData();
++        this.switchBuffer();
++    }  
++}
++
+ cc.MeshBuffer = module.exports = MeshBuffer;
+diff --git a/cocos2d/core/renderer/webgl/model-batcher.js b/cocos2d/core/renderer/webgl/model-batcher.js
+index 7655b15..56b4794 100644
+--- a/cocos2d/core/renderer/webgl/model-batcher.js
++++ b/cocos2d/core/renderer/webgl/model-batcher.js
+@@ -23,7 +23,7 @@
+  THE SOFTWARE.
+  ****************************************************************************/
+ 
+-const { vfmtPosUvColor, vfmt3D } = require('./vertex-format');
++const { vfmtPosUvColor, vfmtPosUvColorTexture, vfmt3D } = require('./vertex-format');
+ const QuadBuffer = require('./quad-buffer');
+ const MeshBuffer = require('./mesh-buffer');
+ const SpineBuffer = require('./spine-buffer');
+@@ -59,7 +59,7 @@ var ModelBatcher = function (device, renderScene) {
+ 
+     // buffers
+     this._quadBuffer = this.getBuffer('quad', vfmtPosUvColor);
+-    this._meshBuffer = this.getBuffer('mesh', vfmtPosUvColor);
++    this._meshBuffer = this.getBuffer('mesh', vfmtPosUvColorTexture);
+     this._quadBuffer3D = this.getBuffer('quad', vfmt3D);
+     this._meshBuffer3D = this.getBuffer('mesh', vfmt3D);
+     this._buffer = this._meshBuffer;
+diff --git a/cocos2d/core/renderer/webgl/vertex-format.js b/cocos2d/core/renderer/webgl/vertex-format.js
+index 53e817a..353daca 100644
+--- a/cocos2d/core/renderer/webgl/vertex-format.js
++++ b/cocos2d/core/renderer/webgl/vertex-format.js
+@@ -41,6 +41,16 @@ var vfmtPosUvColor = new gfx.VertexFormat([
+ vfmtPosUvColor.name = 'vfmtPosUvColor';
+ gfx.VertexFormat.XY_UV_Color = vfmtPosUvColor;
+ 
++// feat: batch label & sprite
++var vfmtPosUvColorTexture = new gfx.VertexFormat([
++    { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
++    { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
++    { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
++    { name: 'a_ext', type: gfx.ATTR_TYPE_UINT8, num: 4},
++]);
++vfmtPosUvColorTexture.name = 'vfmtPosUvColorTexture';
++gfx.VertexFormat.XY_UV_Color_Texture = vfmtPosUvColorTexture;
++
+ var vfmtPosUvTwoColor = new gfx.VertexFormat([
+     { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
+     { name: gfx.ATTR_UV0, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
+@@ -73,6 +83,7 @@ gfx.VertexFormat.XY = vfmtPos;
+ module.exports = {
+     vfmt3D,
+     vfmtPosUvColor,
++    vfmtPosUvColorTexture,
+     vfmtPosUvTwoColor,
+     vfmtPosUv,
+     vfmtPosColor,
+-- 
+2.29.2
+

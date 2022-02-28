@@ -1,0 +1,34 @@
+{
+  "ver": "1.2.4",
+  "uuid": "7d3f912e-8683-4f84-a76e-030ebc6cfc7f",
+  "rawTextureUuid": "b8ed808d-0ba0-4c8e-96ad-a2c211a65cbd",
+  "size": {
+    "width": 256,
+    "height": 512
+  },
+  "type": "Texture Packer",
+  "subMetas": {
+    "HelloWorld.png": {
+      "ver": "1.0.4",
+      "uuid": "e5e032ed-9a59-4dd8-a014-984ed3e0a88a",
+      "rawTextureUuid": "b8ed808d-0ba0-4c8e-96ad-a2c211a65cbd",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 1,
+      "trimY": 1,
+      "width": 195,
+      "height": 270,
+      "rawWidth": 195,
+      "rawHeight": 270,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "spriteType": "normal",
+      "subMetas": {}
+    }
+  }
+}

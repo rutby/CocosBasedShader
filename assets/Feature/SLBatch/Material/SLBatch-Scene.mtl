@@ -1,0 +1,25 @@
+{
+  "__type__": "cc.Material",
+  "_name": "SLBatch-Scene",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "72f0f461-ec5d-4b7c-ae7b-122a028fecaa"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "texture0": {
+          "__uuid__": "fe340e59-8350-42e4-ae26-e580c5970ec4"
+        },
+        "texture2": {
+          "__uuid__": "b8ed808d-0ba0-4c8e-96ad-a2c211a65cbd"
+        }
+      },
+      "defines": {
+        "USE_TEXTURE": true
+      }
+    }
+  }
+}
