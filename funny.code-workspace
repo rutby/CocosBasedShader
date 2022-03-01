@@ -1,11 +1,14 @@
 {
 	"folders": [
-		{
-			"path": "."
-		},
-		{
-			"path": "../../../../../../Applications/CocosCreator/Creator/2.3.0/CocosCreator.app/Contents/Resources/engine/cocos2d"
-		}
-	],
+        {
+            "path": "."
+        },
+        {
+            "path": "../../../../../../Applications/CocosCreator/Creator/2.3.0/CocosCreator.app/Contents/Resources/engine"
+        },
+        {
+            "path": "../../../../../../Applications/CocosCreator/Creator/2.3.0/CocosCreator.app/Contents/Resources/builtin/oppo-adapter"
+        }
+    ],
     "settings": {}
 }

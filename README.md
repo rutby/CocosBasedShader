@@ -39,4 +39,4 @@
 #### 9. 文字与图片合并渲染批次
 
 ![](preview/slbatch.png)
-> 图中FPS的显示单独一个Drawcall, 剩下的Cocos图标和按钮一个Drawcall(分属不同图集). 引擎部分的修改参见[git-patch](preview/slbatch.patch)
+> 图中FPS的显示单独一个Drawcall, 剩下的Cocos图标和按钮一个Drawcall(分属不同图集). 引擎部分的修改参见[git-patch-engine](preview/engine.patch), [git-patch-cocos2d-x](preview/cocos2d-x.patch), [git-patch-builtin](preview/builtin.patch)

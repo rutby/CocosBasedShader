@@ -1,0 +1,32 @@
+From 2fb68f57d6bfeb54d841792f7789c4df3e5019b8 Mon Sep 17 00:00:00 2001
+From: chentao <chentao@moqipobing.com>
+Date: Tue, 1 Mar 2022 14:34:12 +0800
+Subject: [PATCH] t
+
+---
+ cocos/renderer/scene/RenderFlow.hpp | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/cocos/renderer/scene/RenderFlow.hpp b/cocos/renderer/scene/RenderFlow.hpp
+index db14bcf37..06e3d05bf 100644
+--- a/cocos/renderer/scene/RenderFlow.hpp
++++ b/cocos/renderer/scene/RenderFlow.hpp
+@@ -66,10 +66,11 @@ public:
+         UPDATE_RENDER_DATA = 1 << 4,
+         OPACITY = 1 << 5,
+         COLOR = 1 << 6,
+-        RENDER = 1 << 7,
+-        CHILDREN = 1 << 8,
+-        POST_RENDER = 1 << 9,
+-        FINAL = 1 << 10,
++        EXTEND = 1 << 7,
++        RENDER = 1 << 8,
++        CHILDREN = 1 << 9,
++        POST_RENDER = 1 << 10,
++        FINAL = 1 << 11,
+         
+         PRE_CALCULATE_VERTICES = 1 << 28,
+         // native render flag
+-- 
+2.29.2
+
